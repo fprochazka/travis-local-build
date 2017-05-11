@@ -9,14 +9,16 @@ RUN apt-get update -q \
 RUN docker-php-ext-install intl sockets curl pdo_mysql \
     && pecl install xdebug
 
+RUN apt-get install wget -y
+
 ENV TIMEZONE=Europe/Prague
 RUN echo ${TIMEZONE} > /etc/timezone \
 	&& dpkg-reconfigure -f noninteractive tzdata
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
 ENV COMPOSER_NO_INTERACTION=1
-ENV COMPOSER_HOME=/usr/local/share/composer
-RUN mkdir -p /usr/local/share/composer \
+ENV COMPOSER_HOME=/root/.composer
+RUN mkdir -p $COMPOSER_HOME \
 	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 	# Make sure we're installing what we think we're installing!
 	# https://composer.github.io/pubkeys.html
@@ -27,4 +29,3 @@ RUN mkdir -p /usr/local/share/composer \
 	&& composer --version
 
 COPY bin/travis_retry /usr/bin
-RUN apt-get install wget -y
