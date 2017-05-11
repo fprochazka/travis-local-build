@@ -62,8 +62,18 @@ class BuildExecutor
 	private function dockerRun(Job $job, string $imageRef)
 	{
 		$volumes = [];
-		foreach ($this->findProjectFiles($job->getProjectDir()) as $file) {
-			$volumes[$file->getPathname()] = '/build/' . $file->getRelativePathname();
+//		foreach ($this->findProjectFiles($job->getProjectDir()) as $file) {
+//			$volumes[$file->getPathname()] = '/build/' . $file->getRelativePathname() . ':ro';
+//		}
+
+		if (count($job->getCacheDirectories()) !== null) {
+			$cacheVolumeName = Strings::webalize($job->getProjectName() . '-cache');
+			$this->docker->createVolume($cacheVolumeName)->wait();
+			foreach ($job->getCacheDirectories() as $cacheDir) {
+				$volumes[$cacheVolumeName] = strtr($cacheDir, [
+					'$HOME' => '/root',
+				]);
+			}
 		}
 
 		$process = $this->docker->run($imageRef, $volumes);
@@ -140,28 +150,11 @@ class BuildExecutor
 			$dockerBuild[] = sprintf('ENV %s %s', $key, $val);
 		}
 
-//		$userComposerCache = getenv('HOME') . '/.composer/cache';
-//		if (is_dir($userComposerCache)) {
-//			$dockerBuild[] = sprintf('COPY %s /usr/local/share/composer/cache', $userComposerCache);
-//		}
-
 		$dockerBuild[] = sprintf('COPY src/ /build');
 
-		foreach ($job->getBeforeInstallScripts() as $script) {
-			$dockerBuild[] = sprintf('RUN %s', $script);
-		}
-
-		foreach ($job->getInstallScripts() as $script) {
-			$dockerBuild[] = sprintf('RUN %s', $script);
-		}
-
-		foreach ($job->getBeforeScripts() as $script) {
-			$dockerBuild[] = sprintf('RUN %s', $script);
-		}
-
 		$entryPointFile = $this->writeEntryPoint($job, $projectTmpDir);
-		$dockerBuild[] = sprintf('COPY %s /usr/local/bin/', basename($entryPointFile));
-		$dockerBuild[] = sprintf('CMD ["/usr/local/bin/%s"]', basename($entryPointFile));
+		$dockerBuild[] = sprintf('COPY %s /usr/local/bin/travis-entrypoint', basename($entryPointFile));
+		$dockerBuild[] = 'CMD ["/usr/local/bin/travis-entrypoint"]';
 
 		$dockerBuild[] = sprintf('LABEL %s="%s"', self::CONTAINER_MARKER_LABEL . '.job', $job->getId());
 
@@ -233,11 +226,28 @@ class BuildExecutor
 	private function writeEntryPoint(Job $job, string $projectTmpDir): string
 	{
 		$cmd = ['#!/bin/bash', 'set -e', ''];
-		foreach ($job->getScripts() as $script) {
-			$cmd[] = sprintf('echo "";echo "";echo %s ;echo "";', escapeshellarg('> ' . $script));
+
+		foreach ($job->getBeforeInstallScripts() as $script) {
+			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('before instal > ' . $script));
 			$cmd[] = $script . "\n";
 		}
-		$entryPointFile = $projectTmpDir . '/travis-entrypoint';
+
+		foreach ($job->getInstallScripts() as $script) {
+			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('install > ' . $script));
+			$cmd[] = $script . "\n";
+		}
+
+		foreach ($job->getBeforeScripts() as $script) {
+			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('before > ' . $script));
+			$cmd[] = $script . "\n";
+		}
+
+		foreach ($job->getScripts() as $script) {
+			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('> ' . $script));
+			$cmd[] = $script . "\n";
+		}
+
+		$entryPointFile = $projectTmpDir . '/travis-entrypoint.' . $job->getId();
 		file_put_contents($entryPointFile, implode("\n", $cmd));
 		$this->fs->chmod($entryPointFile, 0755);
 		return $entryPointFile;

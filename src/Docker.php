@@ -38,11 +38,11 @@ class Docker
 		return $build;
 	}
 
-	public function run(string $imageRef, array $volumes): Process
+	public function run(string $imageRef, array $volumes)
 	{
 		$volumeOptions = '';
-		foreach ($volumes as $hostDir => $containerDir) {
-			$volumeOptions .= sprintf(' -v %s:%s', $hostDir, $containerDir);
+		foreach ($volumes as $host => $container) {
+			$volumeOptions .= sprintf(' -v %s:%s', $host, $container);
 		}
 
 		$run = new Process(
@@ -51,6 +51,21 @@ class Docker
 				$this->executable,
 				$volumeOptions,
 				$imageRef
+			)
+		);
+		$run->setTimeout(null);
+		$run->start();
+		return $run;
+	}
+
+	public function createVolume(string $volumeName): Process
+	{
+		$run = new Process(
+			sprintf(
+				'%s volume create --label %s %s',
+				$this->executable,
+				BuildExecutor::CONTAINER_MARKER_LABEL . '="true"',
+				$volumeName
 			)
 		);
 		$run->setTimeout(null);

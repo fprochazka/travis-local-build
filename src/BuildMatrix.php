@@ -57,6 +57,8 @@ class BuildMatrix
 		$beforeScripts = $this->getConfigScripts($config, 'before_script');
 		$scripts = $this->getConfigScripts($config, 'script');
 
+		$cacheDirectories = $this->getConfigValue($config, ['cache', 'directories'], 'array') ?: [];
+
 		$phpConfig = $this->getConfigValue($config, ['php'], 'array') ?? [self::DEFAULT_PHP];
 		$envMatrixConfig = $this->getConfigValue($config, ['env', 'matrix'], 'array') ?? [''];
 		foreach ($phpConfig as $phpVersion) {
@@ -70,7 +72,8 @@ class BuildMatrix
 					$beforeInstallScripts,
 					$installScripts,
 					$beforeScripts,
-					$scripts
+					$scripts,
+					$cacheDirectories
 				);
 			}
 		}
@@ -92,7 +95,8 @@ class BuildMatrix
 				$beforeInstallScripts,
 				$installScripts,
 				$beforeScripts,
-				$scripts
+				$scripts,
+				$cacheDirectories
 			);
 		}
 

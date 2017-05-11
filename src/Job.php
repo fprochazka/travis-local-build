@@ -40,6 +40,9 @@ class Job
 	/** @var bool */
 	private $allowedFailure = false;
 
+	/** @var array */
+	private $cacheDirectories;
+
 	public function __construct(
 		string $projectName,
 		string $projectDir,
@@ -48,9 +51,11 @@ class Job
 		array $beforeInstallScripts,
 		array $installScripts,
 		array $beforeScripts,
-		array $scripts
+		array $scripts,
+		array $cacheDirectories
 	)
 	{
+		$this->id = substr(md5($phpVersion . json_encode($env)), 0, 6);
 		$this->projectName = $projectName;
 		$this->projectDir = $projectDir;
 		$this->phpVersion = $phpVersion;
@@ -59,7 +64,7 @@ class Job
 		$this->installScripts = $installScripts;
 		$this->beforeScripts = $beforeScripts;
 		$this->scripts = $scripts;
-		$this->id = substr(md5($phpVersion . json_encode($env)), 0, 6);
+		$this->cacheDirectories = $cacheDirectories;
 	}
 
 	public function getId(): string
@@ -115,6 +120,11 @@ class Job
 	public function getScripts(): array
 	{
 		return $this->scripts;
+	}
+
+	public function getCacheDirectories(): array
+	{
+		return $this->cacheDirectories;
 	}
 
 	public function isAllowedFailure(): bool
