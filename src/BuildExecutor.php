@@ -23,6 +23,7 @@ class BuildExecutor
 {
 
 	const PHP_BASE_IMAGE = 'travisci/php';
+	const CONTAINER_MARKER_LABEL = 'su.fprochazka.travis-local-build';
 
 	/** @var \Symfony\Component\Console\Output\OutputInterface */
 	private $out;
@@ -131,6 +132,9 @@ class BuildExecutor
 
 		$dockerBuild = [];
 		$dockerBuild[] = sprintf('FROM %s:%s', self::PHP_BASE_IMAGE, $job->getPhpVersion());
+		$dockerBuild[] = sprintf('LABEL %s="true"', self::CONTAINER_MARKER_LABEL);
+
+		$dockerBuild[] = 'WORKDIR /build';
 		foreach ($job->getEnv() as $key => $val) {
 			$dockerBuild[] = sprintf('ENV %s %s', $key, $val);
 		}
@@ -141,7 +145,6 @@ class BuildExecutor
 //		}
 
 		$dockerBuild[] = sprintf('COPY src/ /build');
-		$dockerBuild[] = 'WORKDIR /build';
 
 		foreach ($job->getBeforeInstallScripts() as $script) {
 			$dockerBuild[] = sprintf('RUN %s', $script);
@@ -158,6 +161,8 @@ class BuildExecutor
 		$entryPointFile = $this->writeEntryPoint($job, $projectTmpDir);
 		$dockerBuild[] = sprintf('COPY %s /usr/local/bin/', basename($entryPointFile));
 		$dockerBuild[] = sprintf('CMD ["/usr/local/bin/%s"]', basename($entryPointFile));
+
+		$dockerBuild[] = sprintf('LABEL %s="%s"', self::CONTAINER_MARKER_LABEL . '.job', $job->getId());
 
 		$dockerFileContents = implode("\n", $dockerBuild);
 		file_put_contents($this->getDockerFile($job), $dockerFileContents);
