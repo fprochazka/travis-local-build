@@ -92,14 +92,15 @@ class BuildExecutor
 
 		$dockerStepsCount = count($dockerSteps);
 		$progress = new ProgressBar($this->out, $dockerStepsCount);
+		$progressFormat = $progress::getFormatDefinition($this->determineBestProgressFormat());
 		$process = $this->docker->build($imageName, $this->getDockerFile($job));
-		$process->wait(function (string $type, $data) use ($progress, $dockerSteps, $dockerStepsCount): void {
+		$process->wait(function (string $type, $data) use ($progress, $progressFormat, $dockerSteps, $dockerStepsCount): void {
 			if ($type === Process::OUT) {
 				foreach (explode("\n", $data) as $line) {
 					if (preg_match('~^Step\\s+(\\d+)\\/' . $dockerStepsCount . '\\s+:~', $line, $m)) {
 						$step = (int) $m[1];
 						$stepMessageLength = $this->terminal->getWidth() - 44;
-						$progress->setFormat($progress::getFormatDefinition($this->determineBestProgressFormat()) . '  ' . substr($dockerSteps[$step] ?? '', 0, $stepMessageLength));
+						$progress->setFormat($progressFormat . '  ' . substr($dockerSteps[$step] ?? '', 0, $stepMessageLength));
 						$progress->setProgress($step);
 					}
 				}
