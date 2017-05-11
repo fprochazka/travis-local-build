@@ -11,5 +11,6 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 
 $application = new \Symfony\Component\Console\Application('travis', 'dev');
 $application->add(new \Fprochazka\TravisLocalBuild\Command\RunCommand());
+$application->add(new \Fprochazka\TravisLocalBuild\Command\ListJobsCommand());
 $application->setCatchExceptions(false);
 $application->run();
