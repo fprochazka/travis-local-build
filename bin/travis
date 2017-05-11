@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types = 1);
+
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+	require_once __DIR__ . '/../vendor/autoload.php';
+}
+
+\Tracy\Debugger::enable(\Tracy\Debugger::DEVELOPMENT, __DIR__ . '/../tmp');
+
+$application = new \Symfony\Component\Console\Application('travis', 'dev');
+$application->add(new \Fprochazka\TravisLocalBuild\Command\RunCommand());
+$application->setCatchExceptions(false);
+$application->run();

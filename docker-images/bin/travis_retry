@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -eux
+
+$@ || (sleep 2 && $@) || (sleep 10 && $@)
