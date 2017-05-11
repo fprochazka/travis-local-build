@@ -53,13 +53,15 @@ class BuildExecutor
 		$this->terminal = new Terminal();
 	}
 
-	public function execute(Job $job): void
+	public function execute(Job $job): bool
 	{
-		$imageRef = $this->dockerBuild($job);
-		$this->dockerRun($job, $imageRef);
+		return $this->dockerRun(
+			$job,
+			$this->dockerBuild($job)
+		);
 	}
 
-	private function dockerRun(Job $job, string $imageRef)
+	private function dockerRun(Job $job, string $imageRef): bool
 	{
 		$volumes = [];
 //		foreach ($this->findProjectFiles($job->getProjectDir()) as $file) {
@@ -91,6 +93,8 @@ class BuildExecutor
 		} else {
 			$this->out->writeln(sprintf('<info>Build succeeded</info>'));
 		}
+
+		return $process->isSuccessful();
 	}
 
 	private function dockerBuild(Job $job): string
