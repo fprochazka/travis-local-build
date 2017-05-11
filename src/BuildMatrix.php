@@ -33,12 +33,12 @@ class BuildMatrix
 	public function create(string $projectDir): array
 	{
 		$configFile = $projectDir . '/.travis.yml';
-		if (!file_exists($configFile)) {
+		if (!is_file($configFile)) {
 			throw new \RuntimeException(sprintf('The .travis.yml was not found in %s', $projectDir));
 		}
 
 		$composerFile = $projectDir . '/composer.json';
-		if (!file_exists($composerFile)) {
+		if (!is_file($composerFile)) {
 			throw new \RuntimeException(sprintf('The composer.json was not found in %s', $projectDir));
 		}
 		$composerConfig = Json::decode(file_get_contents($composerFile), Json::FORCE_ARRAY);

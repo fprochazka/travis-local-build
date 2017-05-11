@@ -136,7 +136,7 @@ class BuildExecutor
 		}
 
 //		$userComposerCache = getenv('HOME') . '/.composer/cache';
-//		if (file_exists($userComposerCache)) {
+//		if (is_dir($userComposerCache)) {
 //			$dockerBuild[] = sprintf('COPY %s /usr/local/share/composer/cache', $userComposerCache);
 //		}
 
@@ -208,7 +208,7 @@ class BuildExecutor
 		}
 
 		$composerLock = $projectDir . '/composer.lock';
-		if (file_exists($composerLock)) {
+		if (is_file($composerLock)) {
 			$result[] = new SplFileInfo($composerLock, '', basename($composerLock));
 		}
 
