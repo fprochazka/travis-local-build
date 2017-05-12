@@ -32,7 +32,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 		$this->addOption(self::NO_CACHE_OPTION, null, InputOption::VALUE_NONE, 'Do not use cache when building the Docker image');
 	}
 
-	public function run(InputInterface $input, OutputInterface $output): int
+	public function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$style = new SymfonyStyle($input, $output);
 

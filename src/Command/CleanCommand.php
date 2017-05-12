@@ -21,7 +21,7 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command
 		$this->setName('clean');
 	}
 
-	public function run(InputInterface $input, OutputInterface $output): int
+	public function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$docker = new Docker(true);
 

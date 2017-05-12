@@ -19,7 +19,7 @@ class ListJobsCommand extends \Symfony\Component\Console\Command\Command
 		$this->setName('list-jobs');
 	}
 
-	public function run(InputInterface $input, OutputInterface $output): int
+	public function execute(InputInterface $input, OutputInterface $output): int
 	{
 		$buildMatrix = new BuildMatrix($output);
 		$jobs = $buildMatrix->create(getcwd());
