@@ -17,6 +17,7 @@ class ListJobsCommand extends \Symfony\Component\Console\Command\Command
 	protected function configure()
 	{
 		$this->setName('list-jobs');
+		$this->setDescription('Outputs the list of Travis jobs. If it\'s red, it\'s allowed to fail (on Travis, not here)');
 	}
 
 	public function execute(InputInterface $input, OutputInterface $output): int

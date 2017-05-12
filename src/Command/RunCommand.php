@@ -27,6 +27,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 	protected function configure()
 	{
 		$this->setName('run');
+		$this->setDescription('Executes the Travis jobs locally, in custom Docker containers');
 		$this->addOption(self::PHP_VERSION_OPTION, null, InputOption::VALUE_REQUIRED, 'Run only tasks with given PHP version');
 		$this->addOption(self::MATRIX_ENV_OPTION, null, InputOption::VALUE_REQUIRED, 'Run only tasks that contain given ENV variables');
 		$this->addOption(self::NO_CACHE_OPTION, null, InputOption::VALUE_NONE, 'Do not use cache when building the Docker image');

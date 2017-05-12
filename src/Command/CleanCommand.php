@@ -19,6 +19,7 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command
 	protected function configure()
 	{
 		$this->setName('clean');
+		$this->setDescription('Removes Docker images of Travis-local jobs');
 	}
 
 	public function execute(InputInterface $input, OutputInterface $output): int
