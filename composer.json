@@ -16,5 +16,10 @@
 		"psr-4": {
 			"Fprochazka\\TravisLocalBuild\\": "src/"
 		}
+	},
+	"autoload-dev": {
+		"psr-4": {
+			"Fprochazka\\TravisLocalBuild\\": "tests/"
+		}
 	}
 }

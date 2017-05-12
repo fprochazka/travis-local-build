@@ -40,23 +40,11 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 		$jobs = $buildMatrix->create(getcwd());
 
 		if ($input->getOption(self::PHP_VERSION_OPTION) !== null) {
-			$requiredVersion = $buildMatrix->formatPhpVersion($input->getOption(self::PHP_VERSION_OPTION));
-			$jobs = array_filter(
-				$jobs,
-				function (Job $job) use ($requiredVersion): bool {
-					return $job->getPhpVersion() === $requiredVersion;
-				}
-			);
+			$jobs = $buildMatrix->filterOnlyPhpVersion($jobs, $input->getOption(self::PHP_VERSION_OPTION));
 		}
 
 		if ($input->getOption(self::MATRIX_ENV_OPTION) !== null) {
-			$requiredEnv = $input->getOption(self::MATRIX_ENV_OPTION);
-			$jobs = array_filter(
-				$jobs,
-				function (Job $job) use ($requiredEnv): bool {
-					return Strings::contains($job->getEnvLine(), $requiredEnv);
-				}
-			);
+			$jobs = $buildMatrix->filterOnlyEnvContains($jobs, $input->getOption(self::MATRIX_ENV_OPTION));
 		}
 
 		$executor = new BuildExecutor(

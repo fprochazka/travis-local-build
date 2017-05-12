@@ -1,0 +1,18 @@
+language: php
+
+sudo: false
+
+cache:
+    directories:
+        - $HOME/.composer/cache
+
+php:
+  - 7.1
+
+install:
+  - travis_retry composer install --no-interaction --no-suggest --no-progress --prefer-dist $COMPOSER_EXTRA_ARGS
+  - travis_retry composer create-project --no-interaction jakub-onderka/php-parallel-lint /tmp/php-parallel-lint
+
+script:
+  - php /tmp/php-parallel-lint/parallel-lint.php -e php,phpt --exclude vendor .
+  - vendor/bin/phpunit -c tests/phpunit.xml tests/

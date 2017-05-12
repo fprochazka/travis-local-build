@@ -47,7 +47,10 @@ class BuildMatrix
 		return $this->computeJobs($projectName, $projectDir, Yaml::parse(file_get_contents($configFile)));
 	}
 
-	private function computeJobs(string $projectName, string $projectDir, array $config): array
+	/**
+	 * @return \Fprochazka\TravisLocalBuild\Travis\Job[]
+	 */
+	public function computeJobs(string $projectName, string $projectDir, array $config): array
 	{
 		/** @var \Fprochazka\TravisLocalBuild\Travis\Job[][] $jobs */
 		$jobs = [/* PHP Version => ENV => Job */];
@@ -62,7 +65,7 @@ class BuildMatrix
 		$phpConfig = $this->getConfigValue($config, ['php'], 'array') ?? [self::DEFAULT_PHP];
 		$envMatrixConfig = $this->getConfigValue($config, ['env', 'matrix'], 'array') ?? $this->getConfigValue($config, ['env'], 'array') ?? [''];
 		foreach ($phpConfig as $phpVersion) {
-			$phpVersion = $this->formatPhpVersion($phpVersion);
+			$phpVersion = self::formatPhpVersion($phpVersion);
 			foreach ($envMatrixConfig as $matrixEnv) {
 				$matrixEnv = $matrixEnv ?? '';
 				$jobs[$phpVersion][$matrixEnv] = new Job(
@@ -87,7 +90,7 @@ class BuildMatrix
 				throw new \RuntimeException(sprintf('Missing php version for matrix.include.%d: %s', $i, json_encode($include)));
 			}
 
-			$phpVersion = $this->formatPhpVersion($phpVersion);
+			$phpVersion = self::formatPhpVersion($phpVersion);
 			$jobs[$phpVersion][$matrixEnv] = new Job(
 				$projectName,
 				$projectDir,
@@ -104,30 +107,30 @@ class BuildMatrix
 		$excludeConfig = $this->getConfigValue($config, ['matrix', 'exclude'], 'array') ?: [];
 		foreach ($excludeConfig as $i => $exclude) {
 			$phpVersion = $this->getConfigValue($exclude, ['php'], 'string|float');
-			$matrixEnv = $this->getConfigValue($exclude, ['env'], 'string') ?: '';
-			if ($phpVersion === null) {
-				throw new \RuntimeException(sprintf('Missing php version for matrix.exclude.%d: %s', $i, json_encode($exclude)));
-			}
+			$matrixEnv = array_key_exists('env', $exclude)
+				? ($this->getConfigValue($exclude, ['env'], 'string') ?? '')
+				: null;
+			$matches = self::createVersionEnvMatcher($matrixEnv, $phpVersion);
 
-			$phpVersion = $this->formatPhpVersion($phpVersion);
-			if (!isset($jobs[$phpVersion][$matrixEnv])) {
-				continue;
+			/** @var \Fprochazka\TravisLocalBuild\Travis\Job $job */
+			foreach (Arrays::flatten($jobs) as $job) {
+				if ($matches($job)) {
+					unset($jobs[$job->getPhpVersion()][$job->getEnvLine()]);
+				}
 			}
-
-			unset($jobs[$phpVersion][$matrixEnv]);
 		}
 
 		$allowFailuresConfig = $this->getConfigValue($config, ['matrix', 'allow_failures'], 'array') ?: [];
 		foreach ($allowFailuresConfig as $i => $allowFailures) {
 			$phpVersion = $this->getConfigValue($allowFailures, ['php'], 'string|float');
-			$matrixEnv = $this->getConfigValue($allowFailures, ['env'], 'string');
-			if ($phpVersion === null) {
-				throw new \RuntimeException(sprintf('Missing php version for matrix.allow_failures.%d: %s', $i, json_encode($allowFailures)));
-			}
+			$matrixEnv = array_key_exists('env', $allowFailures)
+				? ($this->getConfigValue($allowFailures, ['env'], 'string') ?? '')
+				: null;
+			$matches = self::createVersionEnvMatcher($matrixEnv, $phpVersion);
 
-			$phpVersion = $this->formatPhpVersion($phpVersion);
-			foreach ($jobs[$phpVersion] as $jobEnv => $job) {
-				if ($matrixEnv === null || $matrixEnv === $jobEnv) {
+			/** @var \Fprochazka\TravisLocalBuild\Travis\Job $job */
+			foreach (Arrays::flatten($jobs) as $job) {
+				if ($matches($job)) {
 					$job->setAllowedFailure(true);
 				}
 			}
@@ -136,7 +139,7 @@ class BuildMatrix
 		return Arrays::flatten($jobs);
 	}
 
-	private function parseEnvironmentLine(string $env): array
+	public function parseEnvironmentLine(string $env): array
 	{
 		$pairs = [];
 		if (trim($env) === '') {
@@ -150,7 +153,7 @@ class BuildMatrix
 		return $pairs;
 	}
 
-	private function getConfigScripts(array $config, string $key): array
+	public function getConfigScripts(array $config, string $key): array
 	{
 		if (!array_key_exists($key, $config)) {
 			return [];
@@ -159,9 +162,9 @@ class BuildMatrix
 		return is_array($config[$key]) ? $config[$key] : [$config[$key]];
 	}
 
-	private function getConfigValue(array $config, array $keys, string $type)
+	public function getConfigValue(array $config, array $keys, string $type)
 	{
-		$value = Arrays::get($config, $keys, NULL);
+		$value = Arrays::get($config, $keys, null);
 		if ($value !== null) {
 			Validators::assert($value, $type);
 		}
@@ -169,7 +172,48 @@ class BuildMatrix
 		return $value;
 	}
 
-	public function formatPhpVersion($version): string
+	public function filterOnlyPhpVersion(array $jobs, string $requiredVersion): array
+	{
+		return array_filter(
+			$jobs,
+			self::createPhpVersionFilter($requiredVersion)
+		);
+	}
+
+	public function filterOnlyEnvContains(array $jobs, string $requiredEnv): array
+	{
+		return array_filter(
+			$jobs,
+			function (Job $job) use ($requiredEnv): bool {
+				return Strings::contains($job->getEnvLine(), $requiredEnv);
+			}
+		);
+	}
+
+	private static function createVersionEnvMatcher(?string $requiredEnv, $requiredPhpVersion): \Closure
+	{
+		$envFilter = function (Job $job) use ($requiredEnv): bool {
+			return $requiredEnv === null || $job->getEnvLine() === $requiredEnv;
+		};
+		$phpFilter = self::createPhpVersionFilter($requiredPhpVersion);
+
+		return function (Job $job) use ($envFilter, $phpFilter): bool {
+			return $envFilter($job) && $phpFilter($job);
+		};
+	}
+
+	private static function createPhpVersionFilter($requiredVersion): \Closure
+	{
+		$requiredVersion = (trim((string) $requiredVersion) !== '')
+			? self::formatPhpVersion($requiredVersion)
+			: null;
+
+		return function (Job $job) use ($requiredVersion): bool {
+			return $requiredVersion === '' || $requiredVersion === null || $job->getPhpVersion() === $requiredVersion;
+		};
+	}
+
+	private static function formatPhpVersion($version): string
 	{
 		if (!is_numeric($version)) {
 			return (string) $version;
