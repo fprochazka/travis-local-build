@@ -39,7 +39,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 		$buildMatrix = new BuildMatrix($output);
 		$jobs = $buildMatrix->create(getcwd());
 
-		if ($input->hasOption(self::PHP_VERSION_OPTION)) {
+		if ($input->getOption(self::PHP_VERSION_OPTION) !== null) {
 			$requiredVersion = $buildMatrix->formatPhpVersion($input->getOption(self::PHP_VERSION_OPTION));
 			$jobs = array_filter(
 				$jobs,
@@ -49,7 +49,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 			);
 		}
 
-		if ($input->hasOption(self::MATRIX_ENV_OPTION)) {
+		if ($input->getOption(self::MATRIX_ENV_OPTION) !== null) {
 			$requiredEnv = $input->getOption(self::MATRIX_ENV_OPTION);
 			$jobs = array_filter(
 				$jobs,
