@@ -6,6 +6,7 @@ namespace Fprochazka\TravisLocalBuild\Command;
 
 use Fprochazka\TravisLocalBuild\BuildExecutor;
 use Fprochazka\TravisLocalBuild\BuildMatrix;
+use Fprochazka\TravisLocalBuild\Docker\Docker;
 use Fprochazka\TravisLocalBuild\Job;
 use Nette\Utils\Strings;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,14 +20,15 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 {
 
 	const PHP_VERSION_OPTION = 'php';
-
 	const MATRIX_ENV_OPTION = 'env';
+	const NO_CACHE_OPTION = 'no-cache';
 
 	protected function configure()
 	{
 		$this->setName('run');
 		$this->addOption(self::PHP_VERSION_OPTION, null, InputOption::VALUE_REQUIRED, 'Run only tasks with given PHP version');
 		$this->addOption(self::MATRIX_ENV_OPTION, null, InputOption::VALUE_REQUIRED, 'Run only tasks that contain given ENV variables');
+		$this->addOption(self::NO_CACHE_OPTION, null, InputOption::VALUE_NONE, 'Do not use cache when building the Docker image');
 	}
 
 	public function run(InputInterface $input, OutputInterface $output): int
@@ -56,7 +58,8 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 
 		$executor = new BuildExecutor(
 			$output,
-			__DIR__ . '/../../tmp'
+			__DIR__ . '/../../tmp',
+			new Docker($input->hasOption(self::NO_CACHE_OPTION))
 		);
 
 		$failed = [];

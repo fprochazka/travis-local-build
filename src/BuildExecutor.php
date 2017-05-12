@@ -4,6 +4,7 @@ declare(strict_types = 1);
 
 namespace Fprochazka\TravisLocalBuild;
 
+use Fprochazka\TravisLocalBuild\Docker\Docker;
 use Nette\Utils\Strings;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\ConsoleOutput;
@@ -37,19 +38,19 @@ class BuildExecutor
 	/** @var \Symfony\Component\Filesystem\Filesystem */
 	private $fs;
 
-	/** @var \Fprochazka\TravisLocalBuild\Docker */
+	/** @var \Fprochazka\TravisLocalBuild\Docker\Docker */
 	private $docker;
 
 	/** @var \Symfony\Component\Console\Terminal */
 	private $terminal;
 
-	public function __construct(OutputInterface $stdOut, string $tempDir)
+	public function __construct(OutputInterface $stdOut, string $tempDir, Docker $docker)
 	{
 		$this->out = $stdOut;
 		$this->err = ($stdOut instanceof ConsoleOutput) ? $stdOut->getErrorOutput() : new StreamOutput(fopen('php://stderr', 'wb'));
 		$this->tempDir = $tempDir;
 		$this->fs = new Filesystem();
-		$this->docker = new Docker();
+		$this->docker = $docker;
 		$this->terminal = new Terminal();
 	}
 
