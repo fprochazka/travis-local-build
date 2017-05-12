@@ -1,5 +1,7 @@
 # Travis-CI local build
 
+[![Build Status](https://travis-ci.org/fprochazka/travis-local-build.svg?branch=master)](https://travis-ci.org/fprochazka/travis-local-build)
+
 This tool
 
 1. computes jobs the Travis-CI would run
