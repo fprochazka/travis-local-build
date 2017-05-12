@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types = 1);
+
+namespace Fprochazka\TravisLocalBuild\Command;
+
+use Fprochazka\TravisLocalBuild\BuildExecutor;
+use Fprochazka\TravisLocalBuild\Docker\Docker;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
+/**
+ * @author Filip Procházka <filip@prochazka.su>
+ */
+class CleanCommand extends \Symfony\Component\Console\Command\Command
+{
+
+	protected function configure()
+	{
+		$this->setName('clean');
+	}
+
+	public function run(InputInterface $input, OutputInterface $output): int
+	{
+		$docker = new Docker(true);
+
+		$imageIds = $docker->getImageIdsWithLabel(BuildExecutor::CONTAINER_MARKER_LABEL, 'true');
+		if (count($imageIds) === 0) {
+			$output->writeln('<info>No images found, all clean</info>');
+		}
+
+		while (count($imageIds) > 0) {
+			$image = $docker->getImageDetails(array_shift($imageIds));
+
+			try {
+				$docker->removeImage($image->getId())->wait();
+				$output->writeln(sprintf('<info>Removed %s with id %s</info>', $image->getTag(), $image->getId()));
+
+			} catch (ProcessFailedException $e) {
+				$imageIds[] = $image->getId();
+				$output->writeln(sprintf('<error>Failed to remove %s with id %s</error>', $image->getTag(), $image->getId()));
+			}
+		}
+
+		return 0;
+	}
+
+}

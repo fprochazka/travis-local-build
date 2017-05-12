@@ -10,7 +10,8 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 \Tracy\Debugger::enable(\Tracy\Debugger::DEVELOPMENT, __DIR__ . '/../tmp');
 
 $application = new \Symfony\Component\Console\Application('travis', 'dev');
-$application->add(new \Fprochazka\TravisLocalBuild\Command\RunCommand());
 $application->add(new \Fprochazka\TravisLocalBuild\Command\ListJobsCommand());
+$application->add(new \Fprochazka\TravisLocalBuild\Command\RunCommand());
+$application->add(new \Fprochazka\TravisLocalBuild\Command\CleanCommand());
 $application->setCatchExceptions(false);
 $application->run();

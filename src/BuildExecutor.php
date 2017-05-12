@@ -12,7 +12,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Output\StreamOutput;
 use Symfony\Component\Console\Terminal;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
@@ -161,6 +160,7 @@ class BuildExecutor
 		$dockerBuild[] = sprintf('COPY %s /usr/local/bin/travis-entrypoint', basename($entryPointFile));
 		$dockerBuild[] = 'CMD ["/usr/local/bin/travis-entrypoint"]';
 
+		$dockerBuild[] = sprintf('LABEL %s="%s"', self::CONTAINER_MARKER_LABEL . '.project', $job->getProjectName());
 		$dockerBuild[] = sprintf('LABEL %s="%s"', self::CONTAINER_MARKER_LABEL . '.job', $job->getId());
 
 		$dockerFileContents = implode("\n", $dockerBuild);
