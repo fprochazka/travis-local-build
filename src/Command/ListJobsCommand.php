@@ -26,7 +26,7 @@ class ListJobsCommand extends \Symfony\Component\Console\Command\Command
 
 		$output->writeln(sprintf('Found %d jobs:', count($jobs)));
 		foreach ($jobs as $job) {
-			$output->writeln(sprintf('- php:%s %s', $job->getPhpVersion(), $job->getEnvLine()));
+			$output->writeln(sprintf('* <%s>php:%s %s</>', $job->isAllowedFailure() ? 'fg=red' : 'info', $job->getPhpVersion(), $job->getEnvLine()));
 		}
 		$output->writeln('');
 
