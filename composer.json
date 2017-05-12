@@ -21,5 +21,8 @@
 		"psr-4": {
 			"Fprochazka\\TravisLocalBuild\\": "tests/"
 		}
-	}
+	},
+	"bin": [
+		"bin/travis-local"
+	]
 }

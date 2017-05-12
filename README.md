@@ -14,6 +14,6 @@ This tool
 * install dependencies using composer
 * build docker images in `docker-images/` using `docker-compose build`
 	* **Pro-Tip:** you can customize them!
-* run the executable `bin/travis` in desired directory
+* run the executable `bin/travis-local` in desired directory
 
 ![travis-local-build](docs/travis-local.gif)
