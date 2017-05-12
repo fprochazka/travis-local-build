@@ -258,8 +258,8 @@ class BuildExecutor
 
 	private function formatScriptLine(string $line): string
 	{
-		$message = $this->out->getFormatter()->format(sprintf('<%s>%s</>', 'fg=yellow', 'before install > ' . escapeshellarg($line)));
-		return sprintf('echo "";echo "%s" ;echo "";', $message);
+		$message = $this->out->getFormatter()->format(sprintf('<%s>%s</>', 'fg=yellow', 'before install > ' . substr(escapeshellarg($line), 1, -1)));
+		return sprintf('echo "";echo \'%s\' ;echo "";', $message);
 	}
 
 	private function determineBestProgressFormat()
