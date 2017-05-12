@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Fprochazka\TravisLocalBuild\Command;
 
-use Fprochazka\TravisLocalBuild\BuildMatrix;
+use Fprochazka\TravisLocalBuild\Travis\BuildMatrix;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 

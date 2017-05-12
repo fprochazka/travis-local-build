@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Fprochazka\TravisLocalBuild;
+namespace Fprochazka\TravisLocalBuild\Travis;
 
 use Nette\Utils\Arrays;
 use Nette\Utils\Json;
@@ -28,7 +28,7 @@ class BuildMatrix
 	}
 
 	/**
-	 * @return \Fprochazka\TravisLocalBuild\Job[]
+	 * @return \Fprochazka\TravisLocalBuild\Travis\Job[]
 	 */
 	public function create(string $projectDir): array
 	{
@@ -49,7 +49,7 @@ class BuildMatrix
 
 	private function computeJobs(string $projectName, string $projectDir, array $config): array
 	{
-		/** @var \Fprochazka\TravisLocalBuild\Job[][] $jobs */
+		/** @var \Fprochazka\TravisLocalBuild\Travis\Job[][] $jobs */
 		$jobs = [/* PHP Version => ENV => Job */];
 
 		$beforeInstallScripts = $this->getConfigScripts($config, 'before_install');
@@ -60,10 +60,11 @@ class BuildMatrix
 		$cacheDirectories = $this->getConfigValue($config, ['cache', 'directories'], 'array') ?: [];
 
 		$phpConfig = $this->getConfigValue($config, ['php'], 'array') ?? [self::DEFAULT_PHP];
-		$envMatrixConfig = $this->getConfigValue($config, ['env', 'matrix'], 'array') ?? [''];
+		$envMatrixConfig = $this->getConfigValue($config, ['env', 'matrix'], 'array') ?? $this->getConfigValue($config, ['env'], 'array') ?? [''];
 		foreach ($phpConfig as $phpVersion) {
 			$phpVersion = $this->formatPhpVersion($phpVersion);
 			foreach ($envMatrixConfig as $matrixEnv) {
+				$matrixEnv = $matrixEnv ?? '';
 				$jobs[$phpVersion][$matrixEnv] = new Job(
 					$projectName,
 					$projectDir,

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 namespace Fprochazka\TravisLocalBuild\Docker;
 
-use Fprochazka\TravisLocalBuild\BuildExecutor;
+use Fprochazka\TravisLocalBuild\Travis\BuildExecutor;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
 use Symfony\Component\Process\ExecutableFinder;

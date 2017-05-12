@@ -4,10 +4,10 @@ declare(strict_types = 1);
 
 namespace Fprochazka\TravisLocalBuild\Command;
 
-use Fprochazka\TravisLocalBuild\BuildExecutor;
-use Fprochazka\TravisLocalBuild\BuildMatrix;
 use Fprochazka\TravisLocalBuild\Docker\Docker;
-use Fprochazka\TravisLocalBuild\Job;
+use Fprochazka\TravisLocalBuild\Travis\BuildExecutor;
+use Fprochazka\TravisLocalBuild\Travis\BuildMatrix;
+use Fprochazka\TravisLocalBuild\Travis\Job;
 use Nette\Utils\Strings;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -66,7 +66,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 		);
 
 		$failed = [];
-		/** @var \Fprochazka\TravisLocalBuild\Job $job */
+		/** @var \Fprochazka\TravisLocalBuild\Travis\Job $job */
 		foreach ($jobs as $job) {
 			$output->write('');
 			$style->block(

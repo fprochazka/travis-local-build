@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Fprochazka\TravisLocalBuild;
+namespace Fprochazka\TravisLocalBuild\Travis;
 
 /**
  * @author Filip Procházka <filip@prochazka.su>

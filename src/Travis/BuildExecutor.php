@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 
-namespace Fprochazka\TravisLocalBuild;
+namespace Fprochazka\TravisLocalBuild\Travis;
 
 use Fprochazka\TravisLocalBuild\Docker\Docker;
 use Nette\Utils\Strings;

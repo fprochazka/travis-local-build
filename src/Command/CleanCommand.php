@@ -4,8 +4,8 @@ declare(strict_types = 1);
 
 namespace Fprochazka\TravisLocalBuild\Command;
 
-use Fprochazka\TravisLocalBuild\BuildExecutor;
 use Fprochazka\TravisLocalBuild\Docker\Docker;
+use Fprochazka\TravisLocalBuild\Travis\BuildExecutor;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Process\Exception\ProcessFailedException;
