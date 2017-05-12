@@ -124,12 +124,10 @@ class BuildExecutor
 		if (!$process->isSuccessful()) {
 			$this->out->writeln('');
 			throw new ProcessFailedException($process);
-
-		} else {
-			$progress->finish();
-			$this->out->writeln("\n");
 		}
 
+		$progress->finish();
+		$this->out->writeln("\n");
 		$this->out->writeln(sprintf('<info>Successfully built image %s</info>', $imageName));
 
 		return $imageName;
@@ -233,22 +231,22 @@ class BuildExecutor
 		$cmd = ['#!/bin/bash', 'set -e', ''];
 
 		foreach ($job->getBeforeInstallScripts() as $script) {
-			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('before instal > ' . $script));
+			$cmd[] = $this->formatScriptLine($script);
 			$cmd[] = $script . "\n";
 		}
 
 		foreach ($job->getInstallScripts() as $script) {
-			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('install > ' . $script));
+			$cmd[] = $this->formatScriptLine($script);
 			$cmd[] = $script . "\n";
 		}
 
 		foreach ($job->getBeforeScripts() as $script) {
-			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('before > ' . $script));
+			$cmd[] = $this->formatScriptLine($script);
 			$cmd[] = $script . "\n";
 		}
 
 		foreach ($job->getScripts() as $script) {
-			$cmd[] = sprintf('echo "";echo %s ;echo "";', escapeshellarg('> ' . $script));
+			$cmd[] = $this->formatScriptLine($script);
 			$cmd[] = $script . "\n";
 		}
 
@@ -256,6 +254,12 @@ class BuildExecutor
 		file_put_contents($entryPointFile, implode("\n", $cmd));
 		$this->fs->chmod($entryPointFile, 0755);
 		return $entryPointFile;
+	}
+
+	private function formatScriptLine(string $line): string
+	{
+		$message = $this->out->getFormatter()->format(sprintf('<%s>%s</>', 'fg=yellow', 'before install > ' . escapeshellarg($line)));
+		return sprintf('echo "";echo "%s" ;echo "";', $message);
 	}
 
 	private function determineBestProgressFormat()
