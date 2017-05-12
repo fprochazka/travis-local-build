@@ -142,7 +142,7 @@ class BuildMatrix
 			return $pairs;
 		}
 
-		foreach (Strings::matchAll($env, '~([A-Z]+)=("[^"]+"|[^\t ]+)~') as $match) {
+		foreach (Strings::matchAll($env, '~([^=\t ]+)=("[^"]+"|[^\t ]+)~') as $match) {
 			$pairs[$match[1]] = $match[2];
 		}
 
