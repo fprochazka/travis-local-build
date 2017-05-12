@@ -6,8 +6,10 @@ ENV DEBCONF_NONINTERACTIVE_SEEN=true
 RUN apt-get update -q \
   && apt-get install unzip git libicu-dev curl libcurl4-gnutls-dev libmcrypt-dev -y --no-install-recommends
 
-RUN docker-php-ext-install intl sockets curl pdo_mysql \
-    && pecl install xdebug
+RUN docker-php-ext-install sockets curl pdo_mysql
+RUN pecl install xdebug
+RUN pecl install memcache
+RUN pecl install redis
 
 RUN apt-get install wget -y
 
