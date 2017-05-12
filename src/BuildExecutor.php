@@ -93,6 +93,7 @@ class BuildExecutor
 		} else {
 			$this->out->writeln(sprintf('<info>Build succeeded</info>'));
 		}
+		$this->out->writeln('');
 
 		return $process->isSuccessful();
 	}

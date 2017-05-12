@@ -66,6 +66,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 		);
 
 		$failed = [];
+		/** @var \Fprochazka\TravisLocalBuild\Job $job */
 		foreach ($jobs as $job) {
 			$output->write('');
 			$style->block(
@@ -81,10 +82,11 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 			}
 		}
 
-		$output->write("\n\n");
 		$style->block(
-			sprintf('Summary: %d out of %d jobs failed', count($failed), count($jobs)),
-			(count($failed) > 0) ? 'ERROR' : 'OK',
+			(count($failed) > 0)
+				? sprintf('Summary: %d out of %d jobs failed', count($failed), count($jobs))
+				: sprintf('Summary: %d jobs succeeded', count($jobs)),
+			(count($failed) > 0) ? 'FAIL' : 'OK',
 			(count($failed) > 0) ? 'fg=white;bg=red' : 'fg=black;bg=green',
 			' ',
 			true
