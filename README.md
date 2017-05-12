@@ -9,3 +9,5 @@ This tool
 ## Usage
 
 clone the project, install dependencies using composer and run the executable `bin/travis` in desired directory
+
+![travis-local-build](docs/travis-local.gif)
