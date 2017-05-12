@@ -168,7 +168,7 @@ class BuildMatrix
 		return $value;
 	}
 
-	private function formatPhpVersion($version): string
+	public function formatPhpVersion($version): string
 	{
 		if (!is_numeric($version)) {
 			return (string) $version;
@@ -178,7 +178,7 @@ class BuildMatrix
 			return (string) $version;
 		}
 
-		return number_format($version, 1, '.', '');
+		return number_format((float) $version, 1, '.', '');
 	}
 
 }

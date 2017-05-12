@@ -40,7 +40,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 		$jobs = $buildMatrix->create(getcwd());
 
 		if ($input->hasOption(self::PHP_VERSION_OPTION)) {
-			$requiredVersion = $input->getOption(self::PHP_VERSION_OPTION);
+			$requiredVersion = $buildMatrix->formatPhpVersion($input->getOption(self::PHP_VERSION_OPTION));
 			$jobs = array_filter(
 				$jobs,
 				function (Job $job) use ($requiredVersion): bool {
