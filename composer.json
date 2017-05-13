@@ -1,4 +1,5 @@
 {
+	"name": "fprochazka/travis-local-build",
 	"require": {
 		"php": ">=7.1",
 		"nette/utils": "^2.4",
@@ -10,7 +11,8 @@
 		"tracy/tracy": "^2.4"
 	},
 	"require-dev": {
-		"phpunit/phpunit": "^6.1"
+		"phpunit/phpunit": "^6.1",
+		"phpstan/phpstan-shim": "^0.7@dev"
 	},
 	"autoload": {
 		"psr-4": {

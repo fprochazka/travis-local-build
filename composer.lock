@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "8abe721e9ff262c7a88c1fed550098f0",
+    "content-hash": "6c31a0009cbc3b26ce8961833380253b",
     "packages": [
         {
             "name": "nette/utils",
@@ -972,6 +972,39 @@
                 "stub"
             ],
             "time": "2017-03-02T20:05:34+00:00"
+        },
+        {
+            "name": "phpstan/phpstan-shim",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpstan-shim.git",
+                "reference": "e8a1c6f0be1b11235cc45b6a8a5e8eab5cc04239"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan-shim/zipball/e8a1c6f0be1b11235cc45b6a8a5e8eab5cc04239",
+                "reference": "e8a1c6f0be1b11235cc45b6a8a5e8eab5cc04239",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~7.0"
+            },
+            "bin": [
+                "phpstan.phar"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.7-dev"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan Phar distribution",
+            "time": "2017-05-11 11:20:34"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -2018,7 +2051,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "phpstan/phpstan-shim": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

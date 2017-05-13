@@ -71,7 +71,7 @@ class BuildMatrix
 				$jobs[$phpVersion][$matrixEnv] = new Job(
 					$projectName,
 					$projectDir,
-					(string) $phpVersion,
+					$phpVersion,
 					$this->parseEnvironmentLine($matrixEnv),
 					$beforeInstallScripts,
 					$installScripts,
