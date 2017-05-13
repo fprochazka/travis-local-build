@@ -232,22 +232,22 @@ class BuildExecutor
 		$cmd = ['#!/bin/bash', 'set -e', ''];
 
 		foreach ($job->getBeforeInstallScripts() as $script) {
-			$cmd[] = $this->formatScriptLine($script);
+			$cmd[] = $this->formatScriptLine($script, 'before install');
 			$cmd[] = $script . "\n";
 		}
 
 		foreach ($job->getInstallScripts() as $script) {
-			$cmd[] = $this->formatScriptLine($script);
+			$cmd[] = $this->formatScriptLine($script, 'install');
 			$cmd[] = $script . "\n";
 		}
 
 		foreach ($job->getBeforeScripts() as $script) {
-			$cmd[] = $this->formatScriptLine($script);
+			$cmd[] = $this->formatScriptLine($script, 'before script');
 			$cmd[] = $script . "\n";
 		}
 
 		foreach ($job->getScripts() as $script) {
-			$cmd[] = $this->formatScriptLine($script);
+			$cmd[] = $this->formatScriptLine($script, 'script');
 			$cmd[] = $script . "\n";
 		}
 
@@ -257,9 +257,9 @@ class BuildExecutor
 		return $entryPointFile;
 	}
 
-	private function formatScriptLine(string $line): string
+	private function formatScriptLine(string $line, string $stage): string
 	{
-		$message = $this->out->getFormatter()->format(sprintf('<%s>%s</>', 'fg=yellow', 'before install > ' . substr(escapeshellarg($line), 1, -1)));
+		$message = $this->out->getFormatter()->format(sprintf('<%s>%s > %s</>', 'fg=yellow', $stage, substr(escapeshellarg($line), 1, -1)));
 		return sprintf('echo "";echo \'%s\' ;echo "";', $message);
 	}
 
