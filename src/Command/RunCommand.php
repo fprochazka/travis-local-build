@@ -84,7 +84,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 			$output->writeln(sprintf('<error>- php:%s %s</error>', $failedJob->getPhpVersion(), $failedJob->getEnvLine()));
 		}
 
-		return 0;
+		return count($failed) > 0 ? 1 : 0;
 	}
 
 }
