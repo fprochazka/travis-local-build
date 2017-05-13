@@ -5,8 +5,18 @@
 This tool
 
 1. computes jobs the Travis-CI would run
-2. generates docker container for each job
+2. generates docker image (that can be customized) for each job
 3. runs each job
+
+What it means:
+
+* no switching of PHP versions to test your library
+* no forgetting to run a specific job
+* prepare everything locally and verify the build passes without hassle
+* clean testing environment very time
+
+This does not replace a build system (which would be able to run identical tasks on CI and local),
+but even a build system wouldn't be able to guarantee executing full Travis matrix with all jobs.
 
 ## Usage
 
