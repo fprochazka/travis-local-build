@@ -42,19 +42,19 @@ class BuildMatrixTest extends TestCase
 		$this->assertEquals('COMPOSER_DEPENDENCIES_OPTIONS="--prefer-lowest --prefer-stable"', $jobs[3]->getEnvLine());
 		$this->assertFalse($jobs[3]->isAllowedFailure());
 
-		$this->assertEquals('nightly', $jobs[4]->getPhpVersion());
+		$this->assertEquals('hhvm', $jobs[4]->getPhpVersion());
 		$this->assertEquals('', $jobs[4]->getEnvLine());
 		$this->assertTrue($jobs[4]->isAllowedFailure());
 
-		$this->assertEquals('nightly', $jobs[5]->getPhpVersion());
+		$this->assertEquals('hhvm', $jobs[5]->getPhpVersion());
 		$this->assertEquals('COMPOSER_DEPENDENCIES_OPTIONS="--prefer-lowest --prefer-stable"', $jobs[5]->getEnvLine());
 		$this->assertTrue($jobs[5]->isAllowedFailure());
 
-		$this->assertEquals('hhvm', $jobs[6]->getPhpVersion());
+		$this->assertEquals('nightly', $jobs[6]->getPhpVersion());
 		$this->assertEquals('', $jobs[6]->getEnvLine());
 		$this->assertTrue($jobs[6]->isAllowedFailure());
 
-		$this->assertEquals('hhvm', $jobs[7]->getPhpVersion());
+		$this->assertEquals('nightly', $jobs[7]->getPhpVersion());
 		$this->assertEquals('COMPOSER_DEPENDENCIES_OPTIONS="--prefer-lowest --prefer-stable"', $jobs[7]->getEnvLine());
 		$this->assertTrue($jobs[7]->isAllowedFailure());
 	}

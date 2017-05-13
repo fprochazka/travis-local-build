@@ -136,6 +136,8 @@ class BuildMatrix
 			}
 		}
 
+		ksort($jobs);
+
 		return Arrays::flatten($jobs);
 	}
 
