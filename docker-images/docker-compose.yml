@@ -36,3 +36,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.hhvm
+
+  wait:
+    image: travisci/wait:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.wait
