@@ -60,6 +60,7 @@ class BuildMatrix
 		$beforeScripts = $this->getConfigScripts($config, 'before_script');
 		$scripts = $this->getConfigScripts($config, 'script');
 
+		$services = $this->getConfigScripts($config, 'services');
 		$cacheDirectories = $this->getConfigValue($config, ['cache', 'directories'], 'array') ?: [];
 
 		$phpConfig = $this->getConfigValue($config, ['php'], 'array') ?? [self::DEFAULT_PHP];
@@ -77,7 +78,8 @@ class BuildMatrix
 					$installScripts,
 					$beforeScripts,
 					$scripts,
-					$cacheDirectories
+					$cacheDirectories,
+					$services
 				);
 			}
 		}
@@ -100,7 +102,8 @@ class BuildMatrix
 				$installScripts,
 				$beforeScripts,
 				$scripts,
-				$cacheDirectories
+				$cacheDirectories,
+				$services
 			);
 		}
 

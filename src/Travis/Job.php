@@ -43,6 +43,9 @@ class Job
 	/** @var array */
 	private $cacheDirectories;
 
+	/** @var array */
+	private $services;
+
 	public function __construct(
 		string $projectName,
 		string $projectDir,
@@ -52,7 +55,8 @@ class Job
 		array $installScripts,
 		array $beforeScripts,
 		array $scripts,
-		array $cacheDirectories
+		array $cacheDirectories,
+		array $services
 	)
 	{
 		$this->id = substr(md5($phpVersion . json_encode($env)), 0, 6);
@@ -65,6 +69,7 @@ class Job
 		$this->beforeScripts = $beforeScripts;
 		$this->scripts = $scripts;
 		$this->cacheDirectories = $cacheDirectories;
+		$this->services = $services;
 	}
 
 	public function getId(): string
@@ -125,6 +130,11 @@ class Job
 	public function getCacheDirectories(): array
 	{
 		return $this->cacheDirectories;
+	}
+
+	public function getServices(): array
+	{
+		return $this->services;
 	}
 
 	public function isAllowedFailure(): bool

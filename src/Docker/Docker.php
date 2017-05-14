@@ -46,18 +46,43 @@ class Docker
 		return $build;
 	}
 
-	public function run(string $imageRef, array $volumes)
+	public function run(string $imageRef, array $volumes, string $networkName, ?string $command = null): Process
 	{
-		$volumeOptions = '';
+		$volumeOptions = [];
 		foreach ($volumes as $host => $container) {
-			$volumeOptions .= sprintf(' -v %s:%s', $host, $container);
+			$volumeOptions[] = sprintf('-v %s:%s', $host, $container);
 		}
 
 		$run = new Process(
 			sprintf(
-				'%s run --rm %s %s',
+				'%s run --rm --network %s %s %s %s',
 				$this->executable,
-				$volumeOptions,
+				$networkName,
+				implode(' ', $volumeOptions),
+				$imageRef,
+				$command
+			)
+		);
+		$run->setTimeout(null);
+		$run->start();
+		return $run;
+	}
+
+	public function startService(string $imageRef, string $networkName, string $networkAlias, string $containerName, array $environmentVariables): Process
+	{
+		$environmentOptions = [];
+		foreach ($environmentVariables as $key => $val) {
+			$environmentOptions[] = sprintf('-e %s=%s', $key, $val);
+		}
+
+		$run = new Process(
+			sprintf(
+				'%s run -d --network %s --network-alias %s --name %s %s %s',
+				$this->executable,
+				$networkName,
+				$networkAlias,
+				$containerName,
+				implode(' ', $environmentOptions),
 				$imageRef
 			)
 		);
@@ -118,6 +143,47 @@ class Docker
 				'%s rmi --force %s',
 				$this->executable,
 				$imageId
+			)
+		);
+		$run->start();
+		return $run;
+	}
+
+	public function removeNetwork(string $name): Process
+	{
+		$run = new Process(
+			sprintf(
+				'%s network rm %s',
+				$this->executable,
+				$name
+			)
+		);
+		$run->start();
+		return $run;
+	}
+
+	public function createNetwork(string $name): Process
+	{
+		$run = new Process(
+			sprintf(
+				'%s network create --subnet 172.25.0.0/16 %s',
+				$this->executable,
+				$name
+			)
+		);
+		$run->start();
+		return $run;
+	}
+
+	public function killAndRemove(string $ref): Process
+	{
+		$run = new Process(
+			sprintf(
+				'%s kill %s; %s rm %s',
+				$this->executable,
+				$ref,
+				$this->executable,
+				$ref
 			)
 		);
 		$run->start();

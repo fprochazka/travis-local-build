@@ -24,6 +24,7 @@ class BuildExecutor
 
 	const PHP_BASE_IMAGE = 'travisci/php';
 	const CONTAINER_MARKER_LABEL = 'su.fprochazka.travis-local-build';
+	const DOCKER_NETWORK = 'travis_ci';
 
 	/** @var \Symfony\Component\Console\Output\OutputInterface */
 	private $out;
@@ -43,6 +44,9 @@ class BuildExecutor
 	/** @var \Symfony\Component\Console\Terminal */
 	private $terminal;
 
+	/** @var \Fprochazka\TravisLocalBuild\Travis\Services */
+	private $services;
+
 	public function __construct(OutputInterface $stdOut, string $tempDir, Docker $docker)
 	{
 		$this->out = $stdOut;
@@ -51,6 +55,7 @@ class BuildExecutor
 		$this->fs = new Filesystem();
 		$this->docker = $docker;
 		$this->terminal = new Terminal();
+		$this->services = new Services($stdOut, $docker, self::DOCKER_NETWORK);
 	}
 
 	public function execute(Job $job): bool
@@ -68,32 +73,49 @@ class BuildExecutor
 //			$volumes[$file->getPathname()] = '/build/' . $file->getRelativePathname() . ':ro';
 //		}
 
-		if (count($job->getCacheDirectories()) !== null) {
-			$cacheVolumeName = Strings::webalize($job->getProjectName() . '-cache');
-			$this->docker->createVolume($cacheVolumeName)->wait();
-			foreach ($job->getCacheDirectories() as $cacheDir) {
-				$volumes[$cacheVolumeName] = strtr($cacheDir, [
-					'$HOME' => '/root',
-				]);
-			}
+		$this->docker->removeNetwork(self::DOCKER_NETWORK)->wait();
+		$this->docker->createNetwork(self::DOCKER_NETWORK)->wait();
+
+		foreach ($job->getServices() as $service) {
+			$this->services->startService($service, $job->getProjectName());
 		}
 
-		$process = $this->docker->run($imageRef, $volumes);
-		$process->wait(
-			function (string $type, $data): void {
-				if ($type === Process::OUT) {
-					$this->out->write($data);
-				} else {
-					$this->err->write($data);
+		try {
+			if (count($job->getCacheDirectories()) !== null) {
+				$cacheVolumeName = Strings::webalize($job->getProjectName() . '-cache');
+				$this->docker->createVolume($cacheVolumeName)->wait();
+				foreach ($job->getCacheDirectories() as $cacheDir) {
+					$volumes[$cacheVolumeName] = strtr(
+						$cacheDir,
+						[
+							'$HOME' => '/root',
+						]
+					);
 				}
 			}
-		);
-		if (!$process->isSuccessful()) {
-			$this->out->writeln(sprintf('<error>Build failed</error>'));
-		} else {
-			$this->out->writeln(sprintf('<info>Build succeeded</info>'));
+
+			$process = $this->docker->run($imageRef, $volumes, self::DOCKER_NETWORK);
+			$process->wait(
+				function (string $type, $data): void {
+					if ($type === Process::OUT) {
+						$this->out->write($data);
+					} else {
+						$this->err->write($data);
+					}
+				}
+			);
+			if (!$process->isSuccessful()) {
+				$this->out->writeln(sprintf('<error>Build failed</error>'));
+			} else {
+				$this->out->writeln(sprintf('<info>Build succeeded</info>'));
+			}
+			$this->out->writeln('');
+
+		} finally {
+			foreach ($job->getServices() as $service) {
+				$this->services->stopService($service, $job->getProjectName());
+			}
 		}
-		$this->out->writeln('');
 
 		return $process->isSuccessful();
 	}
