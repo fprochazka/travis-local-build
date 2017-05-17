@@ -171,6 +171,7 @@ class BuildExecutor
 		$dockerBuild[] = sprintf('LABEL %s="true"', self::CONTAINER_MARKER_LABEL);
 
 		$dockerBuild[] = 'WORKDIR /build';
+		$dockerBuild[] = sprintf('ENV %s %s', 'TRAVIS_PHP_VERSION', $job->getPhpVersion());
 		foreach ($job->getEnv() as $key => $val) {
 			$dockerBuild[] = sprintf('ENV %s %s', $key, $val);
 		}
