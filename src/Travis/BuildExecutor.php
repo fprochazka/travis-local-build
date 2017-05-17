@@ -253,6 +253,9 @@ class BuildExecutor
 	private function writeEntryPoint(Job $job, string $projectTmpDir): string
 	{
 		$cmd = ['#!/bin/bash', 'set -e', ''];
+//
+		// todo: addons.apt.packages
+		// $ sudo -E apt-get -yq --no-install-suggests --no-install-recommends --force-yes install dnsutils
 
 		foreach ($job->getBeforeInstallScripts() as $script) {
 			$cmd[] = $this->formatScriptLine($script, 'before install');
