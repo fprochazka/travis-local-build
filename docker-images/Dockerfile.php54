@@ -4,11 +4,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN=true
 
 RUN apt-get update -q \
-  && apt-get install unzip git libicu-dev curl libcurl4-gnutls-dev libmcrypt-dev -y --no-install-recommends
+  && apt-get install unzip git libicu-dev curl wget libcurl4-gnutls-dev libmcrypt-dev -y --no-install-recommends
 
 RUN docker-php-ext-install intl
-
-RUN apt-get install wget -y
 
 ENV TIMEZONE=Europe/Prague
 RUN echo ${TIMEZONE} > /etc/timezone \
