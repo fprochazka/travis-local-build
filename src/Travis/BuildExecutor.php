@@ -63,11 +63,6 @@ class BuildExecutor
 
 	private function dockerRun(Job $job, string $imageRef): bool
 	{
-		$volumes = [];
-//		foreach ($this->findProjectFiles($job->getProjectDir()) as $file) {
-//			$volumes[$file->getPathname()] = '/build/' . $file->getRelativePathname() . ':ro';
-//		}
-
 		$projectNameSafe = Strings::webalize($job->getProjectName());
 
 		$dockerNetwork = sprintf('%s-%s', 'travis', $projectNameSafe);
@@ -82,6 +77,8 @@ class BuildExecutor
 		}
 
 		try {
+			$volumes = [];
+
 			if (count($job->getCacheDirectories()) !== null) {
 				$cacheVolumeName = sprintf('%s-%s', 'travis-cache', $projectNameSafe);
 				$this->docker->createVolume($cacheVolumeName)->wait();
