@@ -44,12 +44,12 @@ class Docker
 			),
 			dirname($dockerFile)
 		);
-		$build->setTimeout(null);
+		$build->setTimeout(NULL);
 		$build->start();
 		return $build;
 	}
 
-	public function run(string $imageRef, array $volumes, string $networkName, ?string $command = null): Process
+	public function run(string $imageRef, array $volumes, string $networkName, ?string $command = NULL): Process
 	{
 		$volumeOptions = [];
 		foreach ($volumes as $host => $container) {
@@ -66,7 +66,7 @@ class Docker
 				$command
 			)
 		);
-		$run->setTimeout(null);
+		$run->setTimeout(NULL);
 		$run->start();
 		return $run;
 	}
@@ -89,7 +89,7 @@ class Docker
 				$imageRef
 			)
 		);
-		$run->setTimeout(null);
+		$run->setTimeout(NULL);
 		$run->start();
 		return $run;
 	}
@@ -104,7 +104,7 @@ class Docker
 				escapeshellarg($volumeName)
 			)
 		);
-		$run->setTimeout(null);
+		$run->setTimeout(NULL);
 		$run->start();
 		return $run;
 	}
@@ -136,7 +136,6 @@ class Docker
 		$details = Json::decode(trim($run->getOutput()), Json::FORCE_ARRAY);
 		return new DockerImage($imageId, $details[0]);
 	}
-
 
 	public function removeImage(string $imageId): Process
 	{
