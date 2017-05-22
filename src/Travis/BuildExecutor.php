@@ -24,7 +24,6 @@ class BuildExecutor
 
 	const PHP_BASE_IMAGE = 'travisci/php';
 	const CONTAINER_MARKER_LABEL = 'su.fprochazka.travis-local-build';
-	const DOCKER_NETWORK = 'travis_ci';
 
 	/** @var \Symfony\Component\Console\Output\OutputInterface */
 	private $out;
@@ -44,9 +43,6 @@ class BuildExecutor
 	/** @var \Symfony\Component\Console\Terminal */
 	private $terminal;
 
-	/** @var \Fprochazka\TravisLocalBuild\Travis\Services */
-	private $services;
-
 	public function __construct(OutputInterface $stdOut, string $tempDir, Docker $docker)
 	{
 		$this->out = $stdOut;
@@ -55,7 +51,6 @@ class BuildExecutor
 		$this->fs = new Filesystem();
 		$this->docker = $docker;
 		$this->terminal = new Terminal();
-		$this->services = new Services($stdOut, $docker, self::DOCKER_NETWORK);
 	}
 
 	public function execute(Job $job): bool
@@ -73,16 +68,22 @@ class BuildExecutor
 //			$volumes[$file->getPathname()] = '/build/' . $file->getRelativePathname() . ':ro';
 //		}
 
-		$this->docker->removeNetwork(self::DOCKER_NETWORK)->wait();
-		$this->docker->createNetwork(self::DOCKER_NETWORK)->wait();
+		$projectNameSafe = Strings::webalize($job->getProjectName());
 
+		$dockerNetwork = sprintf('%s-%s', 'travis', $projectNameSafe);
+		if ($this->docker->isNetworkCreated($dockerNetwork)) {
+			$this->docker->removeNetwork($dockerNetwork)->wait();
+		}
+		$this->docker->createNetwork($dockerNetwork)->wait();
+
+		$services = new Services($this->out, $this->docker, $dockerNetwork);
 		foreach ($job->getServices() as $service) {
-			$this->services->startService($service, $job->getProjectName());
+			$services->startService($service, $job->getProjectName());
 		}
 
 		try {
 			if (count($job->getCacheDirectories()) !== null) {
-				$cacheVolumeName = Strings::webalize($job->getProjectName() . '-cache');
+				$cacheVolumeName = sprintf('%s-%s', 'travis-cache', $projectNameSafe);
 				$this->docker->createVolume($cacheVolumeName)->wait();
 				foreach ($job->getCacheDirectories() as $cacheDir) {
 					$volumes[$cacheVolumeName] = strtr(
@@ -94,7 +95,7 @@ class BuildExecutor
 				}
 			}
 
-			$process = $this->docker->run($imageRef, $volumes, self::DOCKER_NETWORK);
+			$process = $this->docker->run($imageRef, $volumes, $dockerNetwork);
 			$process->wait(
 				function (string $type, $data): void {
 					if ($type === Process::OUT) {
@@ -113,8 +114,9 @@ class BuildExecutor
 
 		} finally {
 			foreach ($job->getServices() as $service) {
-				$this->services->stopService($service, $job->getProjectName());
+				$services->stopService($service, $job->getProjectName());
 			}
+			$this->docker->removeNetwork($dockerNetwork)->wait();
 		}
 
 		return $process->isSuccessful();

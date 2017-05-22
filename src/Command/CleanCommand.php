@@ -24,9 +24,9 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command
 
 	public function execute(InputInterface $input, OutputInterface $output): int
 	{
-		$docker = new Docker(true);
+		$docker = new Docker(true, BuildExecutor::CONTAINER_MARKER_LABEL);
 
-		$imageIds = $docker->getImageIdsWithLabel(BuildExecutor::CONTAINER_MARKER_LABEL, 'true');
+		$imageIds = $docker->getImageIds();
 		if (count($imageIds) === 0) {
 			$output->writeln('<info>No images found, all clean</info>');
 		}

@@ -51,7 +51,10 @@ class RunCommand extends \Symfony\Component\Console\Command\Command
 		$executor = new BuildExecutor(
 			$output,
 			__DIR__ . '/../../tmp',
-			new Docker($input->hasOption(self::NO_CACHE_OPTION))
+			new Docker(
+				$input->hasOption(self::NO_CACHE_OPTION),
+				BuildExecutor::CONTAINER_MARKER_LABEL
+			)
 		);
 
 		$failed = [];

@@ -4,7 +4,6 @@ declare(strict_types = 1);
 
 namespace Fprochazka\TravisLocalBuild\Docker;
 
-use Fprochazka\TravisLocalBuild\Travis\BuildExecutor;
 use Nette\Utils\Json;
 use Nette\Utils\Strings;
 use Symfony\Component\Process\ExecutableFinder;
@@ -22,11 +21,15 @@ class Docker
 	/** @var bool */
 	private $noCache;
 
-	public function __construct(bool $noCache)
+	/** @var string */
+	private $markerLabel;
+
+	public function __construct(bool $noCache, string $markerLabel)
 	{
 		$finder = new ExecutableFinder();
 		$this->executable = $finder->find('docker', '/usr/bin/docker');
 		$this->noCache = $noCache;
+		$this->markerLabel = $markerLabel;
 	}
 
 	public function build(string $imageRef, string $dockerFile): Process
@@ -79,9 +82,9 @@ class Docker
 			sprintf(
 				'%s run -d --network %s --network-alias %s --name %s %s %s',
 				$this->executable,
-				$networkName,
-				$networkAlias,
-				$containerName,
+				escapeshellarg($networkName),
+				escapeshellarg($networkAlias),
+				escapeshellarg($containerName),
 				implode(' ', $environmentOptions),
 				$imageRef
 			)
@@ -97,8 +100,8 @@ class Docker
 			sprintf(
 				'%s volume create --label %s %s',
 				$this->executable,
-				BuildExecutor::CONTAINER_MARKER_LABEL . '="true"',
-				$volumeName
+				$this->markerLabel . '="true"',
+				escapeshellarg($volumeName)
 			)
 		);
 		$run->setTimeout(null);
@@ -106,14 +109,13 @@ class Docker
 		return $run;
 	}
 
-	public function getImageIdsWithLabel(string $containerMarkerLabel, string $value): array
+	public function getImageIds(): array
 	{
 		$run = new Process(
 			sprintf(
-				'%s images -q --filter label=%s=%s',
+				'%s images -q --filter label=%s',
 				$this->executable,
-				$containerMarkerLabel,
-				$value
+				$this->markerLabel
 			)
 		);
 		$run->mustRun();
@@ -149,26 +151,80 @@ class Docker
 		return $run;
 	}
 
+	public function getNetworkIds(): array
+	{
+		$run = new Process(
+			sprintf(
+				'%s network ls -q --filter label=%s',
+				$this->executable,
+				$this->markerLabel
+			)
+		);
+		$run->mustRun();
+
+		return array_filter(Strings::split(trim($run->getOutput()), '~[\n\r]+~'));
+	}
+
+	public function getNetworkDetails(string $networkId): DockerNetwork
+	{
+		$run = new Process(
+			sprintf(
+				'%s network inspect %s',
+				$this->executable,
+				$networkId
+			)
+		);
+		$run->mustRun();
+		$details = Json::decode(trim($run->getOutput()), Json::FORCE_ARRAY);
+		return new DockerNetwork($networkId, $details[0]);
+	}
+
+	public function isNetworkCreated(string $name): bool
+	{
+		foreach ($this->getNetworkIds() as $networkId) {
+			$network = $this->getNetworkDetails($networkId);
+			if ($network->getName() === $name) {
+				return TRUE;
+			}
+		}
+
+		return FALSE;
+	}
+
+	public function createNetwork(string $name): Process
+	{
+		$taken = [];
+		foreach ($this->getNetworkIds() as $networkId) {
+			$otherNetwork = $this->getNetworkDetails($networkId);
+			list(, $b,) = explode('.', $otherNetwork->getSubnet(), 3);
+			$taken[(int) $b] = (int) $b;
+		}
+
+		$subnetCounter = 25;
+		for ($i = $subnetCounter; isset($taken[$i]) ;$i++) {
+			$subnetCounter = $i + 1;
+		}
+
+		$run = new Process(
+			sprintf(
+				'%s network create --label %s --subnet 172.%d.0.0/16 %s',
+				$this->executable,
+				$this->markerLabel . '="true"',
+				$subnetCounter,
+				escapeshellarg($name)
+			)
+		);
+		$run->mustRun();
+		return $run;
+	}
+
 	public function removeNetwork(string $name): Process
 	{
 		$run = new Process(
 			sprintf(
 				'%s network rm %s',
 				$this->executable,
-				$name
-			)
-		);
-		$run->start();
-		return $run;
-	}
-
-	public function createNetwork(string $name): Process
-	{
-		$run = new Process(
-			sprintf(
-				'%s network create --subnet 172.25.0.0/16 %s',
-				$this->executable,
-				$name
+				escapeshellarg($name)
 			)
 		);
 		$run->start();
@@ -181,9 +237,9 @@ class Docker
 			sprintf(
 				'%s kill %s; %s rm %s',
 				$this->executable,
-				$ref,
+				escapeshellarg($ref),
 				$this->executable,
-				$ref
+				escapeshellarg($ref)
 			)
 		);
 		$run->start();
