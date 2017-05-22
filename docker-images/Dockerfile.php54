@@ -6,8 +6,6 @@ ENV DEBCONF_NONINTERACTIVE_SEEN=true
 RUN apt-get update -q \
   && apt-get install unzip git libicu-dev curl wget libcurl4-gnutls-dev libmcrypt-dev -y --no-install-recommends
 
-RUN docker-php-ext-install intl
-
 ENV TIMEZONE=Europe/Prague
 RUN echo ${TIMEZONE} > /etc/timezone \
 	&& dpkg-reconfigure -f noninteractive tzdata
