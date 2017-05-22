@@ -66,10 +66,9 @@ class BuildExecutor
 		$projectNameSafe = Strings::webalize($job->getProjectName());
 
 		$dockerNetwork = sprintf('%s-%s', 'travis', $projectNameSafe);
-		if ($this->docker->isNetworkCreated($dockerNetwork)) {
-			$this->docker->removeNetwork($dockerNetwork)->wait();
+		if (!$this->docker->isNetworkCreated($dockerNetwork)) {
+			$this->docker->createNetwork($dockerNetwork)->wait();
 		}
-		$this->docker->createNetwork($dockerNetwork)->wait();
 
 		$services = new Services($this->out, $this->docker, $dockerNetwork);
 		foreach ($job->getServices() as $service) {
