@@ -185,6 +185,44 @@ class BuildMatrixTest extends TestCase
 		$this->assertEmpty($jobs);
 	}
 
+	public function testKdybyDateTimeProvider()
+	{
+		$jobs = $this->matrix->computeJobs('kdyby/datetime-provider', __DIR__, $this->parseConfig(__DIR__ . '/../configs/kdyby-datetime-provider.yml'));
+		$this->assertCount(6, $jobs);
+
+		$job = array_shift($jobs);
+		$this->assertEquals('7.1', $job->getPhpVersion());
+		$this->assertEquals('', $job->getEnvLine());
+		$this->assertTrue($job->isAllowedFailure());
+
+		$job = array_shift($jobs);
+		$this->assertEquals('7.1', $job->getPhpVersion());
+		$this->assertEquals('COMPOSER_EXTRA_ARGS="--prefer-stable"', $job->getEnvLine());
+		$this->assertFalse($job->isAllowedFailure());
+
+		$job = array_shift($jobs);
+		$this->assertEquals('7.1', $job->getPhpVersion());
+		$this->assertEquals('COMPOSER_EXTRA_ARGS="--prefer-lowest --prefer-stable"', $job->getEnvLine());
+		$this->assertFalse($job->isAllowedFailure());
+
+		$job = array_shift($jobs);
+		$this->assertEquals('7.1', $job->getPhpVersion());
+		$this->assertEquals('COMPOSER_EXTRA_ARGS="--prefer-stable" COVERAGE="--coverage ./coverage.xml --coverage-src ./src" TESTER_RUNTIME="phpdbg"', $job->getEnvLine());
+		$this->assertFalse($job->isAllowedFailure());
+
+		$job = array_shift($jobs);
+		$this->assertEquals('7.1', $job->getPhpVersion());
+		$this->assertEquals('COMPOSER_EXTRA_ARGS="--prefer-stable" PHPSTAN=1', $job->getEnvLine());
+		$this->assertFalse($job->isAllowedFailure());
+
+		$job = array_shift($jobs);
+		$this->assertEquals('7.1', $job->getPhpVersion());
+		$this->assertEquals('COMPOSER_EXTRA_ARGS="--prefer-stable" CODING_STANDARD=1', $job->getEnvLine());
+		$this->assertFalse($job->isAllowedFailure());
+
+		$this->assertEmpty($jobs);
+	}
+
 	private function parseConfig(string $config): array
 	{
 		return Yaml::parse(file_get_contents($config));

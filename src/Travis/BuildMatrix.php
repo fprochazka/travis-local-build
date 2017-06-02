@@ -84,15 +84,17 @@ class BuildMatrix
 			}
 		}
 
+		$defaultPhpVersion = (count($jobs) === 1) ? key($jobs) : NULL;
+
 		$includeConfig = $this->getConfigValue($config, ['matrix', 'include'], 'array') ?: [];
 		foreach ($includeConfig as $i => $include) {
 			$phpVersion = $this->getConfigValue($include, ['php'], 'string|float');
 			$matrixEnv = $this->getConfigValue($include, ['env'], 'string') ?? '';
-			if ($phpVersion === null) {
+			if ($phpVersion === null && $defaultPhpVersion === NULL) {
 				throw new \RuntimeException(sprintf('Missing php version for matrix.include.%d: %s', $i, json_encode($include)));
 			}
 
-			$phpVersion = self::formatPhpVersion($phpVersion);
+			$phpVersion = self::formatPhpVersion($phpVersion ?: $defaultPhpVersion);
 			$jobs[$phpVersion][$matrixEnv] = new Job(
 				$projectName,
 				$projectDir,
