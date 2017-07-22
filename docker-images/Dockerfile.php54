@@ -1,4 +1,4 @@
-FROM php:5.4-cli
+FROM fprochazka/php:5.4
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN=true

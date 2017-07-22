@@ -1,4 +1,4 @@
-FROM php:7.0-cli
+FROM fprochazka/php:7.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN=true
@@ -6,7 +6,7 @@ ENV DEBCONF_NONINTERACTIVE_SEEN=true
 RUN apt-get update -q \
   && apt-get install unzip git libicu-dev curl wget libcurl4-gnutls-dev libmcrypt-dev -y --no-install-recommends
 
-RUN pecl install xdebug
+#RUN pecl install xdebug
 COPY conf/xdebug.ini /usr/local/etc/php/conf.d/
 
 #RUN pecl install memcache-beta
