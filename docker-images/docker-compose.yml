@@ -1,6 +1,12 @@
 version: "3"
 
 services:
+#  php53:
+#    image: travisci/php:5.3
+#    build:
+#      context: .
+#      dockerfile: Dockerfile.php54
+
   php54:
     image: travisci/php:5.4
     build:
