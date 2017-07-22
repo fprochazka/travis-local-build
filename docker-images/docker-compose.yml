@@ -31,6 +31,12 @@ services:
       context: .
       dockerfile: Dockerfile.php71
 
+  php72:
+    image: travisci/php:7.2
+    build:
+      context: .
+      dockerfile: Dockerfile.php72
+
   hhvm:
     image: travisci/php:hhvm
     build:
