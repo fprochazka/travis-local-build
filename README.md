@@ -13,7 +13,7 @@ What it means:
 * no switching of PHP versions to test your library
 * no forgetting to run a specific job
 * prepare everything locally and verify the build passes without hassle
-* clean testing environment very time
+* clean testing environment every time
 
 This does not replace a build system (which would be able to run identical tasks on CI and local),
 but even a build system wouldn't be able to guarantee executing full Travis matrix with all jobs.
