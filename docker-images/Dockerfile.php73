@@ -1,4 +1,4 @@
-FROM fprochazka/php:5.6
+FROM fprochazka/php:7.3
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV DEBCONF_NONINTERACTIVE_SEEN=true
@@ -7,10 +7,9 @@ RUN apt-get update -q \
   && apt-get install unzip git libicu-dev curl wget libcurl4-gnutls-dev libmcrypt-dev -y --no-install-recommends
 
 #RUN pecl install xdebug
-COPY conf/xdebug.ini /usr/local/etc/php/conf.d/
+#COPY conf/xdebug.ini /usr/local/etc/php/conf.d/
 
-RUN pecl install memcache
-#RUN pecl install redis
+RUN pecl install apcu
 
 ENV TIMEZONE=Europe/Prague
 RUN echo ${TIMEZONE} > /etc/timezone \

@@ -2,49 +2,55 @@ version: "3"
 
 services:
   php54:
-    image: travisci/php:5.4
+    image: fprochazka/travisci-php:5.4
     build:
       context: .
       dockerfile: Dockerfile.php54
 
   php55:
-    image: travisci/php:5.5
+    image: fprochazka/travisci-php:5.5
     build:
       context: .
       dockerfile: Dockerfile.php55
 
   php56:
-    image: travisci/php:5.6
+    image: fprochazka/travisci-php:5.6
     build:
       context: .
       dockerfile: Dockerfile.php56
 
   php70:
-    image: travisci/php:7.0
+    image: fprochazka/travisci-php:7.0
     build:
       context: .
       dockerfile: Dockerfile.php70
 
   php71:
-    image: travisci/php:7.1
+    image: fprochazka/travisci-php:7.1
     build:
       context: .
       dockerfile: Dockerfile.php71
 
   php72:
-    image: travisci/php:7.2
+    image: fprochazka/travisci-php:7.2
     build:
       context: .
       dockerfile: Dockerfile.php72
 
+  php73:
+    image: fprochazka/travisci-php:7.3
+    build:
+      context: .
+      dockerfile: Dockerfile.php73
+
   hhvm:
-    image: travisci/php:hhvm
+    image: fprochazka/travisci-php:hhvm
     build:
       context: .
       dockerfile: Dockerfile.hhvm
 
   wait:
-    image: travisci/wait:latest
+    image: fprochazka/travisci-wait:latest
     build:
       context: .
       dockerfile: Dockerfile.wait

@@ -9,9 +9,7 @@ RUN apt-get update -q \
 #RUN pecl install xdebug
 #COPY conf/xdebug.ini /usr/local/etc/php/conf.d/
 
-#RUN pecl install memcache-beta
-#RUN pecl install redis
-#RUN pecl install apcu
+RUN pecl install apcu
 
 ENV TIMEZONE=Europe/Prague
 RUN echo ${TIMEZONE} > /etc/timezone \
@@ -24,7 +22,7 @@ RUN mkdir -p $COMPOSER_HOME \
 	&& curl -o /tmp/composer-setup.php https://getcomposer.org/installer \
 	# Make sure we're installing what we think we're installing!
 	# https://composer.github.io/pubkeys.html
-	&& echo "669656bab3166a7aff8a7506b8cb2d1c292f042046c5a994c43155c0be6190fa0355160742ab2e1c88d40d5be660b410" > /tmp/composer-setup.sig \
+	&& echo "48e3236262b34d30969dca3c37281b3b4bbe3221bda826ac6a9a62d6444cdb0dcd0615698a5cbe587c3f0fe57a54d8f5" > /tmp/composer-setup.sig \
 	&& php -r "if (hash('SHA384', file_get_contents('/tmp/composer-setup.php')) !== trim(file_get_contents('/tmp/composer-setup.sig'))) { unlink('/tmp/composer-setup.php'); echo 'Invalid installer' . PHP_EOL; exit(1); }" \
 	&& php /tmp/composer-setup.php --no-ansi --install-dir=/usr/local/bin --filename=composer --snapshot \
 	&& rm -f /tmp/composer-setup.* \

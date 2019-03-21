@@ -22,7 +22,7 @@ use Symfony\Component\Process\Process;
 class BuildExecutor
 {
 
-	const PHP_BASE_IMAGE = 'travisci/php';
+	const PHP_BASE_IMAGE = 'fprochazka/travisci-php';
 	const CONTAINER_MARKER_LABEL = 'su.fprochazka.travis-local-build';
 
 	/** @var \Symfony\Component\Console\Output\OutputInterface */
